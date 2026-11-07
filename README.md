@@ -64,4 +64,6 @@ python3 sims/import_sprites.py sheet assets/source/mochi.jpg MOCHI   # 2x2 表�
 python3 sims/import_sprites.py cells assets/source/luna.jpg LUNA 3x2 normal=0,0 panic=1,0 cry=0,1 happy=1,1   # 崩れた配置のシート
 ```
 
+黒猫の瞳は `python3 sims/recolor_eyes.py assets/sprites/STRAY_normal.png` で茶色→黄色に塗り替えている。
+
 `assets/sprites/<NAME>_<expr>.png` があれば `pets.py` はそれを使う（表情の画像がなければ normal で代用、画像がなければコード描画）。プロンプトは `docs/gemini-prompts.md`。
