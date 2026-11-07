@@ -35,6 +35,10 @@ GAP0, GAP_GROW = 0.22, 0.010   # リングの隙間（ラジアン）は時間�
 OMEGA = 0.9                    # リングの回転速度（rad/s）
 BOOST, VMAX = 1.012, 2100.0
 TIME_LIMIT = 55.0
+SPEED0 = (500, 800)            # 初速の範囲
+MYSTERY_SPEED = 900
+FIRST_ESCAPE = (7, 18)         # 最初の脱出が起きてほしい時間帯（秒）
+LAST_ESCAPE_MAX = 48           # 最後の脱出の上限（秒）
 OUTRO = 3.0
 SLOW = 0.3                     # スローモーションの速さ
 
@@ -93,7 +97,7 @@ class Sim:
         for i, (name, color) in enumerate(CHARACTERS):
             a = math.pi / 2 + (i - 1.5) * 0.5
             ang = rng.uniform(0, 2 * math.pi)
-            sp = rng.uniform(500, 800)
+            sp = rng.uniform(*SPEED0)
             self.balls.append(Ball(name, color, CX + 150 * math.cos(a), CY - 120 + 60 * math.sin(a),
                                    sp * math.cos(ang), sp * math.sin(ang)))
         self.twists = plan_twists(rng)
@@ -117,7 +121,7 @@ class Sim:
                     grav, flip_until = -GRAVITY, t + 4.0
                 elif kind == "MYSTERY":
                     ang = self.rng.uniform(0, 2 * math.pi)
-                    self.balls.append(Ball(*MYSTERY, CX, CY, 900 * math.cos(ang), 900 * math.sin(ang), born=t))
+                    self.balls.append(Ball(*MYSTERY, CX, CY, MYSTERY_SPEED * math.cos(ang), MYSTERY_SPEED * math.sin(ang), born=t))
             if flip_until > 0 and t >= flip_until:
                 grav, flip_until = GRAVITY, -1
             gap = gap_width(t)
@@ -205,7 +209,7 @@ class Sim:
         if len(self.escapes) < n:
             return -1
         ts = [e[0] for e in self.escapes]
-        if not (7 <= ts[0] <= 18) or ts[-1] > 48:
+        if not (FIRST_ESCAPE[0] <= ts[0] <= FIRST_ESCAPE[1]) or ts[-1] > LAST_ESCAPE_MAX:
             return -1
         gaps = [b - a for a, b in zip(ts, ts[1:])]
         if min(gaps) < 2.0:

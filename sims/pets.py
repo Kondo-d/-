@@ -40,6 +40,15 @@ TEAM_COL = {"DOGS": (255, 170, 70), "CATS": (120, 190, 255), "STRAY": (230, 230,
 
 E.BALL_R = 50
 E.GAP0 = 0.34
+# 見やすさ優先のゆっくりめの物理（キャラの表情が追えるように）
+E.GRAVITY = 800.0
+E.SPEED0 = (320, 480)
+E.VMAX = 1250.0
+E.BOOST = 1.006
+E.GAP_GROW = 0.02
+E.MYSTERY_SPEED = 550
+E.FIRST_ESCAPE = (5, 13)
+E.LAST_ESCAPE_MAX = 31        # スロー演出を足しても 40 秒前後に収まるように
 E.CHARACTERS = [(n, c) for n, _, _, c in CAST]
 E.MYSTERY = (STRAY[0], STRAY[3])
 E.TWISTS["MYSTERY"] = "A STRAY CAT APPEARS!"
@@ -61,12 +70,13 @@ def _load(name, expr):
         p = SPRITES / f"{key}_{e}.png"
         if p.exists():
             im = Image.open(p).convert("RGBA")
-            pad = 12
+            pad = 24
             big = Image.new("RGBA", (im.width + pad * 2, im.height + pad * 2), (0, 0, 0, 0))
             big.paste(im, (pad, pad), im)
-            a = big.getchannel("A").filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(2))
-            rim = Image.new("RGBA", big.size, (255, 255, 255, 0))
-            rim.putalpha(a.point(lambda v: int(v * (0.85 if key == "STRAY" else 0.45))))
+            a = big.getchannel("A").filter(ImageFilter.MaxFilter(25)).filter(ImageFilter.GaussianBlur(3))
+            team = INFO[STRAY[0] if key == "STRAY" else key][1]
+            rim = Image.new("RGBA", big.size, TEAM_COL[team] + (0,))   # チーム色の縁取りで犬猫をひと目で区別
+            rim.putalpha(a.point(lambda v: int(v * 0.9)))
             rim.alpha_composite(big)
             return rim
     return None
@@ -82,7 +92,7 @@ def sprite(name, kind, expr, r):
 
 
 # ---------- シード選び ----------
-def pick_seed(winner, max_tries=500):
+def pick_seed(winner, max_tries=2000):
     best = (-1, None)
     for seed in range(max_tries):
         sim = E.Sim(seed).run()
@@ -261,14 +271,10 @@ def render(sim, frame_sim, slow, near_shown, out_path, audio_path):
             b = d.textbbox((0, 0), name, font=f_name)
             d.text((x - (b[2] - b[0]) / 2, y - r * 1.9 - 20), name, font=f_name, fill=TEAM_COL[team],
                    stroke_width=3, stroke_fill=(0, 0, 0))
-        # ニアミス
+        # ニアミス（キャラに重ならないよう、リングの下に固定表示）
         for t, name in ot_near:
-            if 0 <= ot - t < 1.0:
-                x, y = pos[[n for n, *_ in ROSTER].index(name)]
-                b = d.textbbox((0, 0), "SO CLOSE!", font=f_sub, stroke_width=4)
-                tx = min(max(x - (b[2] - b[0]) / 2, 20), W - (b[2] - b[0]) - 20)
-                d.text((tx, y - r * 2 - 90), "SO CLOSE!", font=f_sub, fill=(255, 90, 90),
-                       stroke_width=4, stroke_fill=(0, 0, 0))
+            if 0 <= ot - t < 1.2:
+                E.centered(d, 1530, f"SO CLOSE, {name}!", f_sub, (255, 90, 90), stroke=4)
         # TWIST バナー
         for t, kind in ot_twist:
             if 0 <= ot - t < 1.6:

@@ -67,3 +67,13 @@ python3 sims/import_sprites.py cells assets/source/luna.jpg LUNA 3x2 normal=0,0 
 黒猫の瞳は `python3 sims/recolor_eyes.py assets/sprites/STRAY_normal.png` で茶色→黄色に塗り替えている。
 
 `assets/sprites/<NAME>_<expr>.png` があれば `pets.py` はそれを使う（表情の画像がなければ normal で代用、画像がなければコード描画）。プロンプトは `docs/gemini-prompts.md`。
+
+### 投稿用の一式
+
+```bash
+python3 sims/pets.py --seed 177 -o output/ep001.mp4
+python3 sims/post_kit.py --seed 177 --episode 1 --out output/ep001   # サムネイル + タイトル・説明文・ハッシュタグ
+```
+
+- 物理はゆっくりめ（キャラの表情が追える速さ）で、動画は 40 秒前後に収まる展開を選ぶ
+- キャラクターにはチーム色（犬=オレンジ、猫=水色）の縁取りが付く
