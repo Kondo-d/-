@@ -16,10 +16,12 @@ import subprocess
 import sys
 import tempfile
 import wave
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 sys.path.insert(0, str(Path(__file__).parent))
 import escape as E  # noqa: E402
@@ -45,6 +47,38 @@ E.TWISTS["MYSTERY"] = "A STRAY CAT APPEARS!"
 ROSTER = CAST + [STRAY]
 INFO = {n: (k, t, c) for n, k, t, c in ROSTER}
 W, H, FPS, BG = E.W, E.H, E.FPS, E.BG
+
+
+# ---------- スプライト（画像素材があれば優先） ----------
+SPRITES = Path(__file__).resolve().parent.parent / "assets" / "sprites"
+
+
+@lru_cache(maxsize=None)
+def _load(name, expr):
+    """assets/sprites/<NAME>_<expr>.png を読み込み、暗い背景でも見えるよう白い縁取りを付ける。"""
+    key = "STRAY" if name == STRAY[0] else name
+    for e in (expr, "normal"):          # 表情の画像がなければ normal で代用
+        p = SPRITES / f"{key}_{e}.png"
+        if p.exists():
+            im = Image.open(p).convert("RGBA")
+            pad = 12
+            big = Image.new("RGBA", (im.width + pad * 2, im.height + pad * 2), (0, 0, 0, 0))
+            big.paste(im, (pad, pad), im)
+            a = big.getchannel("A").filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(2))
+            rim = Image.new("RGBA", big.size, (255, 255, 255, 0))
+            rim.putalpha(a.point(lambda v: int(v * (0.85 if key == "STRAY" else 0.45))))
+            rim.alpha_composite(big)
+            return rim
+    return None
+
+
+@lru_cache(maxsize=None)
+def sprite(name, kind, expr, r):
+    im = _load(name, expr)
+    if im is None:
+        return draw(kind, expr, r)       # 画像がなければコード描画のキャラ
+    w = int(r * 2.5)
+    return im.resize((w, int(im.height * w / im.width)), Image.LANCZOS)
 
 
 # ---------- シード選び ----------
@@ -184,7 +218,7 @@ def render(sim, frame_sim, slow, near_shown, out_path, audio_path):
                 d.text((cx - (b[2] - b[0]) / 2 - b[0], 384), "?", font=f_name, fill=(90, 90, 110))
                 continue
             rank = next((i + 1 for i, e in enumerate(done) if e[1] == name), None)
-            paste_center(img, draw(kind, "happy" if rank else "normal", 26), cx, 398)
+            paste_center(img, sprite(name, kind, "happy" if rank else "normal", 26), cx, 398)
             label = name + (f" #{rank}" if rank else "")
             b = d.textbbox((0, 0), label, font=f_name)
             d.text((cx - (b[2] - b[0]) / 2 - b[0], 442), label, font=f_name,
@@ -220,7 +254,7 @@ def render(sim, frame_sim, slow, near_shown, out_path, audio_path):
                 expr = "panic" if (recent_twist or is_slow or near_gap) else "normal"
             vx = (x - prev[i][0]) if i < len(prev) else 0
             tilt = max(-18, min(18, -vx * 0.9))
-            sp = draw(kind, expr, r).rotate(tilt, resample=Image.BICUBIC)
+            sp = sprite(name, kind, expr, r).rotate(tilt, resample=Image.BICUBIC)
             paste_center(img, sp, x, y)
             b = d.textbbox((0, 0), name, font=f_name)
             d.text((x - (b[2] - b[0]) / 2, y - r * 1.9 - 20), name, font=f_name, fill=TEAM_COL[team],
@@ -257,7 +291,7 @@ def render(sim, frame_sim, slow, near_shown, out_path, audio_path):
             kind, team, _ = INFO[winner]
             pop = min(1.0, (ot - ot_end - 0.2) * 3)
             bounce = 1 + 0.08 * math.sin(min(1, pop) * math.pi)
-            paste_center(img, draw(kind, "happy", int(120 * pop * bounce) or 1), W / 2, 700)
+            paste_center(img, sprite(winner, kind, "happy", max(4, int(120 * pop * bounce))), W / 2, 700)
             if team == "STRAY":
                 E.centered(d, 900, "NOBODY SAW THAT COMING...", f_sub, (255, 255, 255))
                 E.centered(d, 970, "THE STRAY WINS?!", f_win, TEAM_COL[team])

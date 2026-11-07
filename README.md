@@ -55,3 +55,12 @@ python3 sims/characters.py output/characters.png        # キャラクター表�
 - 犬チーム（MOCHI＝柴犬、BISCUIT＝ビーグル）vs 猫チーム（GINGER＝茶トラ、LUNA＝グレー）＋乱入する黒猫（???）
 - キャラクターはすべてコードで描いたオリジナル（`sims/characters.py`）。表情は通常・焦り・泣き・喜びの4種類で、状況に応じて自動で切り替わる
 - 脱出時と優勝発表に合成した鳴き声（ワンワン／ニャー）が入る
+
+### 画像素材（Gemini アプリなどで作成）の取り込み
+
+```bash
+python3 sims/import_sprites.py lineup assets/source/lineup.jpg MOCHI BISCUIT GINGER LUNA STRAY
+python3 sims/import_sprites.py sheet assets/source/mochi.jpg MOCHI   # 2x2 表情シート
+```
+
+`assets/sprites/<NAME>_<expr>.png` があれば `pets.py` はそれを使う（表情の画像がなければ normal で代用、画像がなければコード描画）。プロンプトは `docs/gemini-prompts.md`。
