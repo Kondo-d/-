@@ -77,8 +77,8 @@ def sprite(name, kind, expr, r):
     im = _load(name, expr)
     if im is None:
         return draw(kind, expr, r)       # 画像がなければコード描画のキャラ
-    w = int(r * 2.5)
-    return im.resize((w, int(im.height * w / im.width)), Image.LANCZOS)
+    k = r * 2.5 / max(im.height, im.width * 0.8)   # 垂れ耳で横長でも顔の大きさをそろえる
+    return im.resize((int(im.width * k), int(im.height * k)), Image.LANCZOS)
 
 
 # ---------- シード選び ----------
@@ -256,6 +256,8 @@ def render(sim, frame_sim, slow, near_shown, out_path, audio_path):
             tilt = max(-18, min(18, -vx * 0.9))
             sp = sprite(name, kind, expr, r).rotate(tilt, resample=Image.BICUBIC)
             paste_center(img, sp, x, y)
+        for i, (x, y) in enumerate(pos):   # 名前はキャラに隠れないよう最後に描く
+            name, _, team, _ = ROSTER[i]
             b = d.textbbox((0, 0), name, font=f_name)
             d.text((x - (b[2] - b[0]) / 2, y - r * 1.9 - 20), name, font=f_name, fill=TEAM_COL[team],
                    stroke_width=3, stroke_fill=(0, 0, 0))
