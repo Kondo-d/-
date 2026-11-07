@@ -40,7 +40,7 @@ def thumbnail(path, seed):
     # 焦り顔の4体 + 隙間にいる謎のシルエット
     spots = [(-200, -120), (190, -160), (-170, 190), (200, 160)]
     for (name, kind, team, _), (dx, dy) in zip(P.CAST, spots):
-        sp = P.sprite(name, kind, "panic", 120).rotate(rng.uniform(-14, 14), resample=Image.BICUBIC)
+        sp = P.sprite(name, kind, "panic", 120).rotate(rng.uniform(-14, 14), resample=Image.BICUBIC, expand=True)
         img.paste(sp, (int(cx + dx - sp.width / 2), int(cy + dy - sp.height / 2)), sp)
     gx, gy = cx + R * math.cos(math.radians(-90)), cy + R * math.sin(math.radians(-90))
     sil = P.sprite(P.STRAY[0], P.STRAY[1], "normal", 95)

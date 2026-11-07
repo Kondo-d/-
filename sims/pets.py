@@ -264,7 +264,7 @@ def render(sim, frame_sim, slow, near_shown, out_path, audio_path):
                 expr = "panic" if (recent_twist or is_slow or near_gap) else "normal"
             vx = (x - prev[i][0]) if i < len(prev) else 0
             tilt = max(-18, min(18, -vx * 0.9))
-            sp = sprite(name, kind, expr, r).rotate(tilt, resample=Image.BICUBIC)
+            sp = sprite(name, kind, expr, r).rotate(tilt, resample=Image.BICUBIC, expand=True)
             paste_center(img, sp, x, y)
         for i, (x, y) in enumerate(pos):   # 名前はキャラに隠れないよう最後に描く
             name, _, team, _ = ROSTER[i]
