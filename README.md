@@ -43,3 +43,15 @@ python3 sims/escape.py --seed 48 -o output/escape.mp4  # シード固定で再�
 - リングに当たるたびに「エリーゼのために」（パブリックドメイン）が1音ずつ鳴る。音はすべて自前で合成
 - キャラクター・メロディ・物理パラメータは `sims/escape.py` 冒頭の定数で変更できる
 - 意外性の仕掛け: TWIST イベント（逆回転・重力反転・高速回転・謎のボール乱入）、ニアミス時の「SO CLOSE!」スロー、脱出時のスロー + 画面シェイク。シード選びでは乱入者の優勝などのどんでん返しを優先する
+
+## ショート試作: DOGS vs CATS（犬猫キャラクター版）
+
+```bash
+python3 sims/pets.py -o output/pets.mp4                 # 展開の良いシードを自動選択
+python3 sims/pets.py --winner cats -o output/pets.mp4   # 優勝チームを指定（dogs / cats / stray）
+python3 sims/characters.py output/characters.png        # キャラクター表情シートを出力
+```
+
+- 犬チーム（MOCHI＝柴犬、BISCUIT＝ビーグル）vs 猫チーム（GINGER＝茶トラ、LUNA＝グレー）＋乱入する黒猫（???）
+- キャラクターはすべてコードで描いたオリジナル（`sims/characters.py`）。表情は通常・焦り・泣き・喜びの4種類で、状況に応じて自動で切り替わる
+- 脱出時と優勝発表に合成した鳴き声（ワンワン／ニャー）が入る
