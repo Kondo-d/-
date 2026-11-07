@@ -6,6 +6,9 @@
     # 2x2 の表情シート（左上 normal / 右上 panic / 左下 cry / 右下 happy）
     python3 sims/import_sprites.py sheet assets/source/mochi.jpg MOCHI
 
+    # レイアウトが崩れたシート: 列x行 と、表情ごとのセル位置（列,行）を指定
+    python3 sims/import_sprites.py cells assets/source/luna.jpg LUNA 3x2 normal=0,0 panic=1,0 cry=0,1 happy=1,1
+
 出力: assets/sprites/<NAME>_<expr>.png（透過 PNG、顔の部分だけにトリミング）
 """
 import sys
@@ -77,6 +80,31 @@ def sheet(path, name):
         save(crop(rgba.crop((cx * w // 2, cy * h // 2, (cx + 1) * w // 2, (cy + 1) * h // 2))), name, expr)
 
 
+def cells(path, name, grid, specs):
+    """顔を自動検出（行→列の順に区切る）し、(列,行) 番号で表情を割り当てる。"""
+    rgba = key_green(Image.open(path))
+    cols, rows = map(int, grid.split("x"))
+    al = np.asarray(rgba)[..., 3] > 128
+    row_runs = runs(al.sum(1) > 2, min_gap=6, min_len=30)
+    if len(row_runs) != rows:
+        sys.exit(f"{rows} 行を想定しましたが {len(row_runs)} 行検出されました")
+    found = []
+    for y0, y1 in row_runs:
+        col_runs = runs(al[y0:y1].sum(0) > 2, min_gap=6, min_len=30)
+        if len(col_runs) != cols:
+            sys.exit(f"{cols} 列を想定しましたが {len(col_runs)} 列検出されました")
+        found.append([(x0, y0, x1, y1) for x0, x1 in col_runs])
+    for spec in specs:
+        expr, pos = spec.split("=")
+        cx, cy = map(int, pos.split(","))
+        save(crop(rgba.crop(found[cy][cx])), name, expr)
+
+
 if __name__ == "__main__":
-    mode, path, *names = sys.argv[1:]
-    lineup(path, names) if mode == "lineup" else sheet(path, names[0])
+    mode, path, *args = sys.argv[1:]
+    if mode == "lineup":
+        lineup(path, args)
+    elif mode == "cells":
+        cells(path, args[0], args[1], args[2:])
+    else:
+        sheet(path, args[0])

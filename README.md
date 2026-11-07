@@ -61,6 +61,7 @@ python3 sims/characters.py output/characters.png        # キャラクター表�
 ```bash
 python3 sims/import_sprites.py lineup assets/source/lineup.jpg MOCHI BISCUIT GINGER LUNA STRAY
 python3 sims/import_sprites.py sheet assets/source/mochi.jpg MOCHI   # 2x2 表情シート
+python3 sims/import_sprites.py cells assets/source/luna.jpg LUNA 3x2 normal=0,0 panic=1,0 cry=0,1 happy=1,1   # 崩れた配置のシート
 ```
 
 `assets/sprites/<NAME>_<expr>.png` があれば `pets.py` はそれを使う（表情の画像がなければ normal で代用、画像がなければコード描画）。プロンプトは `docs/gemini-prompts.md`。
