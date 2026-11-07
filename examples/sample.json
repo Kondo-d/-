@@ -1,0 +1,13 @@
+{
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "audio": "bgm",
+  "scenes": [
+    {"title": "動画作成ツール", "subtitle": "JSON を書くだけで動画ができます", "duration": 4, "bg": ["#1e3c72", "#2a5298"]},
+    {"title": "STEP 1", "subtitle": "シーンのテキストと秒数を決める", "duration": 3.5, "bg": ["#11998e", "#38ef7d"]},
+    {"title": "STEP 2", "subtitle": "背景色のグラデーションを選ぶ", "duration": 3.5, "bg": ["#ee0979", "#ff6a00"]},
+    {"title": "STEP 3", "subtitle": "python3 make_video.py を実行", "duration": 3.5, "bg": ["#8E2DE2", "#4A00E0"]},
+    {"title": "完成！", "subtitle": "Thank you for watching", "duration": 4, "bg": ["#232526", "#414345"]}
+  ]
+}
