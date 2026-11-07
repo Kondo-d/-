@@ -31,3 +31,14 @@ python3 make_video.py examples/sample.json -o sample.mp4
 | `scenes[].duration` | シーンの秒数 |
 | `scenes[].bg` | 背景グラデーションの 2 色 |
 | `scenes[].color` | 文字色（初期値 `#FFFFFF`） |
+
+## ショート試作: Which ball escapes first?
+
+```bash
+python3 sims/escape.py -o output/escape.mp4            # 展開が良くなるシードを自動選択
+python3 sims/escape.py --seed 8 -o output/escape.mp4   # シード固定で再現
+```
+
+- 縦型 1080x1920 / 60fps。回転リングの隙間（時間とともに広がる）から4体のキャラクターボールが脱出を競う
+- リングに当たるたびに「エリーゼのために」（パブリックドメイン）が1音ずつ鳴る。音はすべて自前で合成
+- キャラクター・メロディ・物理パラメータは `sims/escape.py` 冒頭の定数で変更できる
